@@ -1,0 +1,124 @@
+blueprint:
+  name: Awtrix Light Movement BluePrint
+  description: Send a notification to Awtrix Light LED Clock
+  domain: automation
+  input:
+    message_text:
+      name: Message Text
+      description: Message to display
+      default: ""
+    icon:
+      name: Icon ID
+      description: Icon to display at beginning of message
+      default: "47693"
+    rainbow:
+      name: Rainbow Colours
+      description: Display message in rainbow colours
+      selector:
+        boolean:
+      default: false
+    hold:
+      name: Hold Message
+      description: Keep message displayed until button press
+      selector:
+        boolean:
+      default: false
+    duration:
+      name: Duration (s)
+      description: Time (seconds) to keep displaying the message
+      selector:
+        number:
+          min: 1
+          max: 60
+      default: 5
+    repeat:
+      name: Repeat
+      description: How many times to repeat the message
+      selector:
+        number:
+          min: 1
+          max: 10
+      default: 1
+    push_icon:
+      name: Push Icon
+      description: Icon should either be fixed position or scroll with text
+      default: "0"
+      selector:
+        select:
+          options:
+            - label: Fixed
+              value: "0"
+            - label: Once
+              value: "1"
+            - label: Repeat
+              value: "2"
+          custom_value: false
+          multiple: false
+    text_color:
+      name: Text colour
+      description: The colour of the text
+      selector:
+        color_rgb:
+      default: [255, 255, 255]
+    background_color:
+      name: Background colour
+      description: The colour of the background
+      selector:
+        color_rgb:
+      default: [0, 0, 0]
+    sound:
+      name: Sound file
+      description: The filename of your RTTTL ringtone file (without extension)
+      default: ""
+    motion_entity:
+      name: Occupancy Sensor
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class:
+            - occupancy
+            - motion
+          multiple: true
+
+mode: restart
+
+variables:
+  message: !input message_text
+  icon: !input icon
+  rainbow: !input rainbow
+  hold: !input hold
+  duration: !input duration
+  push: !input push_icon
+  text_color: !input text_color
+  background_color: !input background_color
+  repeat: !input repeat
+  sound: !input sound
+
+#alias: AwtrixLightBlueprint
+
+trigger:
+  - platform: state
+    entity_id: !input motion_entity
+    from: "off"
+    to: "on"
+
+action:
+  - service: mqtt.publish
+    data:
+      topic: awtrix/notify
+      payload: >
+        {
+          "text": "{{ trigger.from_state.attributes.friendly_name }} {{ message }}",
+          "textCase": 2,
+          "icon": "{{ icon }}",
+          "rainbow": {{ rainbow | lower }},
+          "hold": {{ hold | lower}},
+          "pushIcon": {{ push | int }},
+          "duration": {{ duration }},
+          "color": {{ text_color }},
+          "background": {{ background_color }},
+          "repeat": {{ repeat }},
+          "sound": {{ sound }}
+        }
+      qos: 0
+      retain: false
