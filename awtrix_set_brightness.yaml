@@ -1,0 +1,46 @@
+blueprint:
+  name: Awtrix Light Change Brightness BluePrint
+  description: Set the Awtrix Light LED Clock display brightness at a fixed time
+  domain: automation
+  input:
+    auto_brightness:
+      name: Auto Brightness
+      description: Set auto brightness (overrides brightness below)
+      selector:
+        boolean:
+      default: false
+    brightness:
+      name: Brightness
+      description: Brightness of the matrix
+      selector:
+        number:
+          min: 0
+          max: 255
+      default: 10
+    start_time:
+      name: Time
+      description: What time to set the brightness
+      selector:
+        time:
+
+mode: restart
+
+variables:
+  auto_brightness: !input auto_brightness
+  brightness: !input brightness
+
+trigger:
+  - platform: time
+    at: !input start_time
+
+action:
+  - service: mqtt.publish
+    data:
+      topic: awtrix/settings
+      payload: >
+        {
+          "BRI": {{ brightness }},
+          "ABRI": {{ auto_brightness | lower }}
+        }
+      qos: 0
+      retain: false
