@@ -4,7 +4,7 @@ Home Assistant Blueprints for automating [Awtrix Light firmware](https://github.
 
 - [Awtrix Movement Notification](/awtrix_movement_notify.yaml)
 
-  ![image](https://github.com/daltskin/HABlueprints/assets/1678318/ffcf472f-1a7d-4075-a3ba-38ec61ef3987)
+  ![image](https://github.com/daltskin/HABlueprints/assets/1678318/9ca20333-8ba3-4171-80b1-83e81adfe66d)
 
 - [Awtrix Set Brightness](/awtrix_set_brightness.yaml)
 
