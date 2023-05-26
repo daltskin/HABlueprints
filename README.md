@@ -8,5 +8,7 @@ Home Assistant Blueprints for automating [Awtrix Light firmware](https://github.
 
 - [Awtrix Set Brightness](/awtrix_set_brightness.yaml)
 
-  ![image](https://github.com/daltskin/HABlueprints/assets/1678318/b36d7ec0-bac4-437d-a8e1-de1cba06759f)
+  ![image](https://github.com/daltskin/HABlueprints/assets/1678318/5bd22c39-f6fc-4629-8cef-f4c0df38d9b2)
+
+
 
