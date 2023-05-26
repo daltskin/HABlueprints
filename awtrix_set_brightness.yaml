@@ -3,6 +3,10 @@ blueprint:
   description: Set the Awtrix Light LED Clock display brightness at a fixed time
   domain: automation
   input:
+    mqtt_prefix:
+      name: MQTT Topic Prefix
+      description: Message to display
+      default: "awtrix"
     auto_brightness:
       name: Auto Brightness
       description: Set auto brightness (overrides brightness below)
@@ -26,6 +30,7 @@ blueprint:
 mode: restart
 
 variables:
+  mqtt_prefix: !input mqtt_prefix
   auto_brightness: !input auto_brightness
   brightness: !input brightness
 
@@ -36,7 +41,7 @@ trigger:
 action:
   - service: mqtt.publish
     data:
-      topic: awtrix/settings
+      topic: "{{ mqtt_prefix }}/settings"
       payload: >
         {
           "BRI": {{ brightness }},
