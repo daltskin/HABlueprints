@@ -1,12 +1,22 @@
 blueprint:
   name: Awtrix Light Movement BluePrint
-  description: Send a notification to Awtrix Light LED Clock
+  description: Send a notification to Awtrix Light LED Clock when movement is detected
   domain: automation
   input:
-    message_text:
+    mqtt_prefix:
+      name: MQTT Topic Prefix
+      description: Message to display
+      default: "awtrix"
+    input_text:
       name: Message Text
       description: Message to display
       default: ""
+    include_device_name:
+      name: Show Device Name
+      description: Include trigger device name in message
+      selector:
+        boolean:
+      default: false
     icon:
       name: Icon ID
       description: Icon to display at beginning of message
@@ -71,7 +81,7 @@ blueprint:
       description: The filename of your RTTTL ringtone file (without extension)
       default: ""
     motion_entity:
-      name: Occupancy Sensor
+      name: Movement Sensor
       selector:
         entity:
           domain: binary_sensor
@@ -83,7 +93,7 @@ blueprint:
 mode: restart
 
 variables:
-  message: !input message_text
+  input_text: !input input_text
   icon: !input icon
   rainbow: !input rainbow
   hold: !input hold
@@ -93,8 +103,14 @@ variables:
   background_color: !input background_color
   repeat: !input repeat
   sound: !input sound
-
-#alias: AwtrixLightBlueprint
+  mqtt_prefix: !input mqtt_prefix
+  show_device_name: !input include_device_name
+  message: >
+    {% if show_device_name %}
+      {{ trigger.from_state.attributes.friendly_name }} {{ input_text }}
+    {% else %}
+      {{ input_text }}
+    {% endif %}
 
 trigger:
   - platform: state
@@ -105,10 +121,10 @@ trigger:
 action:
   - service: mqtt.publish
     data:
-      topic: awtrix/notify
+      topic: "{{ mqtt_prefix }}/notify"
       payload: >
         {
-          "text": "{{ trigger.from_state.attributes.friendly_name }} {{ message }}",
+          "text": "{{ message }}",
           "textCase": 2,
           "icon": "{{ icon }}",
           "rainbow": {{ rainbow | lower }},
