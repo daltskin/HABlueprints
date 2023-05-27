@@ -3,10 +3,15 @@ blueprint:
   description: Send a notification to Awtrix Light LED Clock when movement is detected
   domain: automation
   input:
-    mqtt_prefix:
-      name: MQTT Topic Prefix
-      description: Message to display
-      default: "awtrix"
+    awtrix:
+      name: AWTRIX Light
+      description: Select the Awtrix light
+      selector:
+        device:
+          integration: mqtt
+          manufacturer: Blueforcer
+          model: AWTRIX Light
+          multiple: false
     input_text:
       name: Message Text
       description: Message to display
@@ -103,8 +108,8 @@ variables:
   background_color: !input background_color
   repeat: !input repeat
   sound: !input sound
-  mqtt_prefix: !input mqtt_prefix
   show_device_name: !input include_device_name
+  device_id: !input awtrix
   message: >
     {% if show_device_name %}
       {{ trigger.from_state.attributes.friendly_name }} {{ input_text }}
@@ -121,7 +126,7 @@ trigger:
 action:
   - service: mqtt.publish
     data:
-      topic: "{{ mqtt_prefix }}/notify"
+      topic: "{{ states.sensor.device_topic.state_with_unit }}/notify"
       payload: >
         {
           "text": "{{ message }}",
@@ -134,7 +139,7 @@ action:
           "color": {{ text_color }},
           "background": {{ background_color }},
           "repeat": {{ repeat }},
-          "sound": {{ sound }}
+          "sound": "{{ sound }}"
         }
       qos: 0
       retain: false
