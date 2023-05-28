@@ -38,6 +38,12 @@ variables:
   auto_brightness: !input auto_brightness
   brightness: !input brightness
   device_id: !input awtrix
+  device_topic: >-
+    {%- for entity in device_entities(device_id) -%}
+      {%- if entity|regex_search("device_topic") -%}
+        {{ states(entity) }}
+      {%- endif -%}
+    {%- endfor -%}
 
 trigger:
   - platform: time
@@ -46,7 +52,7 @@ trigger:
 action:
   - service: mqtt.publish
     data:
-      topic: "{{ states.sensor.device_topic.state_with_unit }}/settings"
+      topic: "{{ device_topic }}/settings"
       payload: >
         {
           "BRI": {{ brightness }},
