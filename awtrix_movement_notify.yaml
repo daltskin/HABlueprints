@@ -116,6 +116,12 @@ variables:
     {% else %}
       {{ input_text }}
     {% endif %}
+  device_topic: >
+    {%- for entity in device_entities(device_id) -%}
+      {%- if entity|regex_search("device_topic") -%}
+        {{ states(entity) }}
+      {%- endif -%}
+    {%- endfor -%}
 
 trigger:
   - platform: state
@@ -126,7 +132,7 @@ trigger:
 action:
   - service: mqtt.publish
     data:
-      topic: "{{ states.sensor.device_topic.state_with_unit }}/notify"
+      topic: "{{ device_topic }}/notify"
       payload: >
         {
           "text": "{{ message }}",
